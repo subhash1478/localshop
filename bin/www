@@ -7,14 +7,14 @@
 var app = require('../app');
 var debug = require('debug')('souvik:server');
 var http = require('http');
-var CONFIG=require('../config')
+const CONFIG=require('../config')
 const mongoose = require('mongoose');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '3001');
 app.set('port', port);
 
 /**
@@ -91,6 +91,6 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-const URI='mongodb://'+CONFIG.USERNAME+':'+CONFIG.PASSWORD+'@'+CONFIG.HOST+':'+CONFIG.PORT+'/'+CONFIG.DATABASE
+const URI='mongodb://'+CONFIG.DB.USERNAME+':'+CONFIG.DB.PASSWORD+'@'+CONFIG.DB.HOST+':'+CONFIG.DB.PORT+'/'+CONFIG.DB.DATABASE
 var connect=mongoose.connect(URI);
-console.log(connect)
+console.log(connect,URI)
