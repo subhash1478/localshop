@@ -91,6 +91,6 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-const URI='mongodb://'+CONFIG.DB.USERNAME+':'+CONFIG.DB.PASSWORD+'@'+CONFIG.DB.HOST+':'+CONFIG.DB.PORT+'/'+CONFIG.DB.DATABASE
+const URI='mongodb://'+CONFIG.USERNAME+':'+CONFIG.PASSWORD+'@'+CONFIG.HOST+':'+CONFIG.PORT+'/'+CONFIG.DATABASE
 var connect=mongoose.connect(URI);
 console.log(connect,URI)
