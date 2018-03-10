@@ -1,3 +1,8 @@
+//
+// ────────────────────────────────────────────────────────────────────────────── I ──────────
+//   :::::: C A T E G O R Y   C O N T R O L L E R : :  :   :    :     :        :          :
+// ────────────────────────────────────────────────────────────────────────────────────────
+//
 var categoryModel=require('../models/categoryModel');
 var categoryController={
     addCategory:function(request_data,callback){
@@ -14,5 +19,4 @@ var categoryController={
         })
     }
 }
-
 module.exports=categoryController

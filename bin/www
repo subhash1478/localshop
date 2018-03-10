@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('souvik:server');
 var http = require('http');
+var CONFIG=require('../config')
 const mongoose = require('mongoose');
 
 /**
@@ -89,5 +90,7 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-var connect=mongoose.connect('mongodb://subhash:sbookjusth@ds211029.mlab.com:11029/localshop');
+
+const URI='mongodb://'+CONFIG.USERNAME+':'+CONFIG.PASSWORD+'@'+CONFIG.HOST+':'+CONFIG.PORT+'/'+CONFIG.DATABASE
+var connect=mongoose.connect(URI);
 console.log(connect)
