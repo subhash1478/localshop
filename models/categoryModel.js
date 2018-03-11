@@ -10,7 +10,6 @@ var CategorySchema= new Schema({
     image:{type:String,required:true}
 },{
     timestamps:true,
-    typecast:true
-});
+ });
 var category=mongoose.model('Category',CategorySchema);
 module.exports=category;

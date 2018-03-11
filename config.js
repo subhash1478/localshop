@@ -9,5 +9,6 @@ module.exports=  {
     USERNAME:'subhash',
     PASSWORD:'sbookjusth',
     PORT:'11029',
-    DATABASE:'localshop'
+    DATABASE:'localshop',
+    SECRET:'QWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()1234567890'
 }

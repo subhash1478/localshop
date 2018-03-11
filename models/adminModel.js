@@ -13,5 +13,5 @@ var AdminSchema= new Schema({
     timestamps:true,
     typecast:true
 });
-var vendor=mongoose.model('Vendor',VendorSchema);
-module.exports=vendor;
+var Admin=mongoose.model('Admin',AdminSchema);
+module.exports=Admin;

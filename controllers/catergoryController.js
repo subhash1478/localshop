@@ -17,6 +17,21 @@ var categoryController={
                 callback({success:true,message:'succesfully added',data:response})
             }
         })
+    },
+    //
+    // ─── GET CATEGORY ───────────────────────────────────────────────────────────────
+    //
+    getCategory:function(request_data,callback){
+        
+        categoryModel.find({}).exec(function(err,response){
+            if(err){
+                callback({success:false,message:err})
+            }else{
+                callback({success:true,message:'succesfully fetch',data:response})
+            }
+        })
     }
+        
+
 }
 module.exports=categoryController
