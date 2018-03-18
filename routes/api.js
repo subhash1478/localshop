@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var categoryController=require('../controllers/catergoryController')
+var usersController=require('../controllers/usersController')
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'welcome to localshop' });
@@ -18,7 +19,7 @@ router.post('/login',function(req,res){
 });
 // register
 router.post('/register',function(req,res){
-  adminController.register(req.body,function(data){
+  usersController.register(req.body,function(data){
     res.json(data)
   })
 });
@@ -45,4 +46,10 @@ router.get('/get-category',function(req,res){
     res.json(data)
   })
 });
+
+router.get('/get-vendor',function(req,res){
+  usersController.getVendorList(req.query,function(data){
+    res.json(data)
+  })
+})
 module.exports = router;
