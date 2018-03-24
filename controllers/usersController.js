@@ -175,7 +175,7 @@ var usersController={
                     lastname:request_data.lastname,
                     email:request_data.email,
                     about:request_data.about,
-                    profile_image:request_data.picture,
+                    profile_image:request_data.profile_image,
                     birthday:request_data.birthday,
                     facebook_id:request_data.id
                     
