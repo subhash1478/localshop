@@ -196,7 +196,7 @@ var usersController={
 
                         var Token=createToken(obj);
                         var data={
-                            token:data,
+                            token:Token,
                             message:'successfully login',
                             userDetails:res
                         }
