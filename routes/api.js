@@ -25,7 +25,7 @@ router.post('/register',function(req,res){
 });
 
 router.post('/fblogin',function(req,res){
-  usersController.register(req.body,function(data){
+  usersController.fblogin(req.body,function(data){
     res.json(data)
   })
 });
