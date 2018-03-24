@@ -23,6 +23,14 @@ router.post('/register',function(req,res){
     res.json(data)
   })
 });
+
+router.post('/fblogin',function(req,res){
+  usersController.register(req.body,function(data){
+    res.json(data)
+  })
+});
+
+
 // forget password
 router.post('/forget-password',function(req,res){
   usersController.forgetPassword(req.body,function(data){
