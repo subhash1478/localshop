@@ -117,7 +117,7 @@ var usersController={
     fblogin:function(request_data,callback){
         async.waterfall([
             fbidcheck,
-            registerFB,
+registerFB,
             
         ],function(error,success){
             if(error){
@@ -168,7 +168,7 @@ var usersController={
                     lastname:request_data.lastname,
                     email:request_data.email,
                     about:request_data.about,
-                    profile_image:request_data.picture.data.url,
+                    profile_image:request_data.picture,
                     birthday:request_data.birthday,
                     facebook_id:request_data.id
                     
@@ -180,6 +180,13 @@ var usersController={
                     if(err){
                         callback(err)
                     }else{
+                        var obj={
+                            id:request_data.id,
+                            email:request_data.email,
+                            firstname:request_data.firstname,
+                            lastname:request_data.lastname
+                        }
+
                         var createToken=createToken(obj);
                         var token={
                             token:createToken,
