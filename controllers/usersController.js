@@ -1,7 +1,10 @@
 var async=require('async');
 var userModel=require('../models/usersModel')
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
+var CONFIG=require('../config')
+
 function createToken(user){
+    //console.log(user)
     var tokenData = {
         id: user.id,
         email: user.email,
@@ -65,7 +68,7 @@ var usersController={
         function emailCheck(callback){
             userModel.count({email:request_data.email})
             .exec(function(err,response){
-                console.log(response)
+                //console.log(response)
                 if(err){
                     callback(err)
                 }else{
@@ -78,7 +81,7 @@ var usersController={
             })
         }
         function register(emailCheck,callback){
-            console.log(emailCheck)
+            //console.log(emailCheck)
             var userModelData=new userModel({
                 firstname:request_data.firstname,
                 lastname:request_data.lastname,
@@ -99,7 +102,7 @@ var usersController={
                 type:request_data.type
             })
             userModelData.save(function(err,res){
-                console.log(res)
+                //console.log(res)
                 if(err){
                     callback(err)
                 }else{
@@ -117,7 +120,7 @@ var usersController={
     fblogin:function(request_data,callback){
         async.waterfall([
             fbidcheck,
-registerFB,
+            registerFB,
             
         ],function(error,success){
             if(error){
@@ -132,31 +135,35 @@ registerFB,
                 if(err){
                     callback(err)
                 }else{
+                    //console.log('count',res)
                     callback(null,res)
                 }
             })
         }
         function registerFB(fbidcheck,callback){
+            //console.log(request_data)
             if(fbidcheck>0){
                 
                 userModel.findOne({facebook_id:request_data.id}).exec(function(err,res){
-                    
+                    console.log(res,'eres')
                     if(err){
                         callback(err)
                     }else{
+                     //   //console.log(res)
                         var obj={
-                            id:request_data.id,
-                            email:request_data.email,
-                            firstname:request_data.firstname,
-                            lastname:request_data.lastname
+                            id:res._id,
+                            email:res.email,
+                            firstname:res.firstname,
+                            lastname:res.lastname
                         }
-                        var createToken=createToken(obj);
-                        var token={
-                            token:createToken,
+                        var Token=createToken(obj);
+                        //console.log(Token)
+                        var data={
+                            token:Token,
                             message:'successfully login',
                             userDetails:res
                         }
-                        callback(null,token) 
+                        callback(null,data) 
                         
                     }
                     
@@ -174,22 +181,22 @@ registerFB,
                     
                     
                 })
-                
+                //console.log(userModelData)
                 userModelData.save(function(err,res){
-                    
+                    //console
                     if(err){
                         callback(err)
                     }else{
                         var obj={
-                            id:request_data.id,
-                            email:request_data.email,
-                            firstname:request_data.firstname,
-                            lastname:request_data.lastname
+                            id:res._id,
+                            email:res.email,
+                            firstname:res.firstname,
+                            lastname:res.lastname
                         }
 
-                        var createToken=createToken(obj);
-                        var token={
-                            token:createToken,
+                        var Token=createToken(obj);
+                        var data={
+                            token:data,
                             message:'successfully login',
                             userDetails:res
                         }
@@ -231,7 +238,7 @@ registerFB,
         })
         function getVendor(callback){
             userModel.find({type:'vendor'}).exec(function(err,res){
-                console.log(res)
+                //console.log(res)
                 if(err){
                     callback(err)
                 }else{
