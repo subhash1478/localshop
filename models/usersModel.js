@@ -23,7 +23,10 @@ var UserSchema= new Schema({
     shopname:{type:String,required:true},
     online:{type:String,default:null},
     profile_image:{type:String,default:null},
-    type:{type:String,required:true}
+    type:{type:String,required:true},
+    facebook_id:{type:String,default:null},
+    about:{type:String,default:null},
+    birthday:{type:String,default:null}
 },{
     timestamps:true,
     typecast:true

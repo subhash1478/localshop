@@ -13,7 +13,7 @@ router.get('/', function(req, res, next) {
 //
 //login
 router.post('/login',function(req,res){
-  adminController.login(req.body,function(data){
+  usersController.login(req.body,function(data){
     res.json(data)
   })
 });
@@ -25,7 +25,7 @@ router.post('/register',function(req,res){
 });
 // forget password
 router.post('/forget-password',function(req,res){
-  adminController.forgetPassword(req.body,function(data){
+  usersController.forgetPassword(req.body,function(data){
     res.json(data)
   })
 });

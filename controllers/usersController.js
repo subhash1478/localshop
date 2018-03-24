@@ -1,5 +1,18 @@
 var async=require('async');
 var userModel=require('../models/usersModel')
+var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
+function createToken(user){
+    var tokenData = {
+        id: user.id,
+        email: user.email,
+        firstname: user.firstname,
+        lastname:user.lastname
+    };
+    var token = jwt.sign(tokenData, CONFIG.SECRET, {
+        expiresIn: "30 days"
+    });
+    return token;
+}
 var usersController={
     //
     // ──────────────────────────────────────────────────────────── I ──────────
@@ -95,6 +108,98 @@ var usersController={
             })
         }
     },
+    
+    //
+    // ────────────────────────────────────────────────────────────────────  ──────────
+    //   :::::: F A C E B O O K   L O G I N : :  :   :    :     :        :          :
+    // ──────────────────────────────────────────────────────────────────────────────
+    //
+    fblogin:function(request_data,callback){
+        async.waterfall([
+            fbidcheck,
+            registerFB,
+            
+        ],function(error,success){
+            if(error){
+                callback({success:false,message:error})
+            }else{
+                callback({success:true,data:success})
+            }
+        })
+        
+        function fbidcheck (callback){
+            userModel.count({facebook_id:request_data.id}).exec(function(err,res){
+                if(err){
+                    callback(err)
+                }else{
+                    callback(null,res)
+                }
+            })
+        }
+        function registerFB(fbidcheck,callback){
+            if(fbidcheck>0){
+                
+                userModel.findOne({facebook_id:request_data.id}).exec(function(err,res){
+                    
+                    if(err){
+                        callback(err)
+                    }else{
+                        var obj={
+                            id:request_data.id,
+                            email:request_data.email,
+                            firstname:request_data.firstname,
+                            lastname:request_data.lastname
+                        }
+                        var createToken=createToken(obj);
+                        var token={
+                            token:createToken,
+                            message:'successfully login',
+                            userDetails:res
+                        }
+                        callback(null,token) 
+                        
+                    }
+                    
+                })
+                
+            }else{
+                var userModelData=new userModel({
+                    firstname:request_data.firstname,
+                    lastname:request_data.lastname,
+                    email:request_data.email,
+                    about:request_data.about,
+                    profile_image:request_data.picture.data.url,
+                    birthday:request_data.birthday,
+                    facebook_id:request_data.id
+                    
+                    
+                })
+                
+                userModelData.save(function(err,res){
+                    
+                    if(err){
+                        callback(err)
+                    }else{
+                        var createToken=createToken(obj);
+                        var token={
+                            token:createToken,
+                            message:'successfully login',
+                            userDetails:res
+                        }
+                        callback(null,token) 
+                    }
+                    
+                    
+                })
+                
+            }
+        }
+    },
+    
+    
+    
+    
+    
     //
     // ────────────────────────────────────────────────────────────────────────────── III ──────────
     //   :::::: U P D A T E   U S E R   D E T A I L S : :  :   :    :     :        :          :
