@@ -53,4 +53,6 @@ category:{type:Schema.Types.ObjectId,ref:'Category',default:null}
     typecast:true
 });
 var users=mongoose.model('Users',UserSchema);
+
+
 module.exports=users;

@@ -23,6 +23,12 @@ router.post('/register',function(req,res){
     res.json(data)
   })
 });
+// update
+router.post('/updateuser',function(req,res){
+  usersController.updateUser(req.body,function(data){
+    res.json(data)
+  })
+});
 
 router.post('/fblogin',function(req,res){
   usersController.fblogin(req.body,function(data){

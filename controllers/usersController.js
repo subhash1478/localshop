@@ -99,7 +99,8 @@ var usersController={
                 shopname:request_data.shopname,
                 online:request_data.online,
                 profile_image:request_data.profile_image,
-                type:request_data.type
+                type:request_data.type,
+                category:request_data.category
             })
             userModelData.save(function(err,res){
                 //console.log(res)
@@ -219,7 +220,67 @@ var usersController={
     //   :::::: U P D A T E   U S E R   D E T A I L S : :  :   :    :     :        :          :
     // ────────────────────────────────────────────────────────────────────────────────────────
     //
-    updateUser:function(){
+    updateUser:function(request_data,callback){
+         
+        async.waterfall([
+            emailCheck,
+            register
+        ],function(error,response){
+            if(error){
+                callback({success:false,message:error})
+            }else{
+                callback({success:true,data:response})
+            }
+        })
+        function emailCheck(callback){
+            userModel.count({email:request_data.email}).where({_id:{$ne:request_data._id}})
+            .exec(function(err,response){
+                //console.log(response)
+                if(err){
+                    callback(err)
+                }else{
+                    if(response<1){
+                        callback(null,response)
+                    }else{
+                        callback('email exist ')
+                    }        
+                }
+            })
+        }
+        function register(emailCheck,callback){
+            //console.log(emailCheck)
+            var userModelData={
+                firstname:request_data.firstname,
+                lastname:request_data.lastname,
+                location:request_data.location,
+                address:request_data.address,
+                category:request_data.category,
+                phone:request_data.phone,
+                email:request_data.email,
+                password:request_data.password,
+                state:request_data.state,
+                city:request_data.city,
+                zip:request_data.zip,
+                country:request_data.country,
+                rating:request_data.rating,
+                shopname:request_data.shopname,
+                online:request_data.online,
+                profile_image:request_data.profile_image,
+                type:request_data.type,
+                category:request_data.category
+            }
+            var cond={_id:request_data._id}
+            , options = { multi: true };
+
+            userModel.update(cond,userModelData,options,function(err,res){
+                //console.log(res)
+                if(err){
+                    callback(err)
+                }else{
+                    callback(null,res)
+                }
+            })
+        }
     },
     //
     // ────────────────────────────────────────────────────────────────────── IV ──────────
