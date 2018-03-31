@@ -7,9 +7,11 @@ var Schema=mongoose.Schema;
 //
 var randomPassword=new Date().getTime()
 var emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+var phrx=/^[\d]{2,4}[- ]?[\d]{3}[- ]?[\d]{3,5}|([0])?(\+\d{1,2}[- ]?)?[789]{1}\d{9}$/;
+
 var UserSchema= new Schema({
-    firstname:{type:String,required:[true,'first name is required'],minlength:3},
-    lastname:{type:String,required:[true,'first name is required'],minlength:3},
+    firstname:{type:String,required:[true,'Firstname is required'],minlength:3},
+    lastname:{type:String,required:[true,'Lastname name is required'],minlength:3},
     location:{type:String,default:null},
     address:{type:String,default:null},
     category:{type:String,default:null},
@@ -17,7 +19,7 @@ var UserSchema= new Schema({
         type: String,
         validate: {
             validator: function(v) {
-                return /\d{3}-\d{3}-\d{4}/.test(v);
+                return phrx.test(v);
             },
             message: '{VALUE} is not a valid phone number!'
         },
@@ -36,12 +38,12 @@ password:{type:String,default:randomPassword,select:false},
 state:{type:String,default:null},
 city:{type:String,default:null},
 zip:{type:String,default:null},
-country:{type:String,default:null,required:true},
+country:{type:String,default:null,required:[true,'country is required']},
 rating:{type:Number,default:0},
-shopname:{type:String,default:null},
+shopname:{type:String,required:[true,'Shop name is required']},
 online:{type:String,default:null},
-profile_image:{type:String,default:null,required:true},
-type:{type:String,default:null,required:true},
+profile_image:{type:String,default:null},
+type:{type:String,default:null,required:[true,'user type is required']},
 facebook_id:{type:String,default:null},
 about:{type:String,default:null},
 birthday:{type:String,default:null},
