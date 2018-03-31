@@ -54,6 +54,14 @@ router.post('/add-category',function(req,res){
     res.json(data)
   })
 });
+
+//  add
+router.post('/update-category',function(req,res){
+  categoryController.updateCategory(req.body,function(data){
+    res.json(data)
+  })
+});
+
 //  get
 router.get('/get-category',function(req,res){
   categoryController.getCategory(req.query,function(data){
