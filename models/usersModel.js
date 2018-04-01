@@ -12,7 +12,7 @@ var phrx=/^[\d]{2,4}[- ]?[\d]{3}[- ]?[\d]{3,5}|([0])?(\+\d{1,2}[- ]?)?[789]{1}\d
 var UserSchema= new Schema({
     firstname:{type:String,required:[true,'Firstname is required'],minlength:3},
     lastname:{type:String,required:[true,'Lastname name is required'],minlength:3},
-    location:{type:String,default:null},
+    location:{type:Schema.Types.Mixed,default:null},
     address:{type:String,default:null},
     category:{type:String,default:null},
     phone: {
