@@ -132,7 +132,7 @@ var usersController={
         })
         
         function fbidcheck (callback){
-            userModel.count({facebook_id:request_data.id}).exec(function(err,res){
+            userModel.count({facebook_id:request_data.facebook_id}).exec(function(err,res){
                 if(err){
                     callback(err)
                 }else{
@@ -145,7 +145,7 @@ var usersController={
             //console.log(request_data)
             if(fbidcheck>0){
                 
-                userModel.findOne({facebook_id:request_data.id}).exec(function(err,res){
+                userModel.findOne({facebook_id:request_data.facebook_id}).exec(function(err,res){
                     console.log(res,'eres')
                     if(err){
                         callback(err)
@@ -178,7 +178,7 @@ var usersController={
                     about:request_data.about,
                     profile_image:request_data.profile_image,
                     birthday:request_data.birthday,
-                    facebook_id:request_data.id
+                    facebook_id:request_data.facebook_id
                     
                     
                 })
