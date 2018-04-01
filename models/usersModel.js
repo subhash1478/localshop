@@ -23,8 +23,7 @@ var UserSchema= new Schema({
             },
             message: '{VALUE} is not a valid phone number!'
         },
-        required: [true, 'User phone number required']
-    },
+     },
     email:{type:String,  validate: {
         validator: function(v) {
             return emailRegex.test(v);
@@ -38,12 +37,12 @@ password:{type:String,default:randomPassword,select:false},
 state:{type:String,default:null},
 city:{type:String,default:null},
 zip:{type:String,default:null},
-country:{type:String,default:null,required:[true,'country is required']},
+country:{type:String,default:null},
 rating:{type:Number,default:0},
-shopname:{type:String,required:[true,'Shop name is required']},
+shopname:{type:String,default:null},
 online:{type:String,default:null},
 profile_image:{type:String,default:null},
-type:{type:String,default:null,required:[true,'user type is required']},
+type:{type:String,default:null},
 facebook_id:{type:String,default:null},
 about:{type:String,default:null},
 birthday:{type:String,default:null},
