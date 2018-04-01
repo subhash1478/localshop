@@ -178,7 +178,15 @@ var usersController={
                     about:request_data.about,
                     profile_image:request_data.profile_image,
                     birthday:request_data.birthday,
-                    facebook_id:request_data.facebook_id
+                    facebook_id:request_data.facebook_id,
+                    location:request_data.location,
+                    type:'customer',
+                    address:request_data.address.street,
+                    state:request_data.address.state,
+                    city:request_data.address.city,
+                    country:request_data.address.country,
+                    
+
                     
                     
                 })
@@ -298,7 +306,7 @@ var usersController={
             }
         })
         function getVendor(callback){
-            userModel.find({type:'vendor'}).exec(function(err,res){
+            userModel.find().exec(function(err,res){
                 //console.log(res)
                 if(err){
                     callback(err)
