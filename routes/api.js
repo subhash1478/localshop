@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var categoryController=require('../controllers/catergoryController')
 var usersController=require('../controllers/usersController')
+var reviewController=require('../controllers/reviewController')
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'welcome to localshop' });
@@ -77,14 +78,14 @@ router.get('/get-vendor',function(req,res){
 
 
 router.post('/add-review',function(req,res){
-  usersController.addReview(req.body,function(data){
+  reviewController.addReview(req.body,function(data){
     res.json(data)
   })
 })
 
 
 router.get('/get-review',function(req,res){
-  usersController.getReview(req.query,function(data){
+  reviewController.getReview(req.query,function(data){
     res.json(data)
   })
 })
