@@ -74,4 +74,21 @@ router.get('/get-vendor',function(req,res){
     res.json(data)
   })
 })
+
+
+router.post('/add-review',function(req,res){
+  usersController.addReview(req.body,function(data){
+    res.json(data)
+  })
+})
+
+
+router.get('/get-review',function(req,res){
+  usersController.getReview(req.query,function(data){
+    res.json(data)
+  })
+})
+
+
+
 module.exports = router;
