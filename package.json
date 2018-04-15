@@ -17,8 +17,11 @@
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.0.9",
     "morgan": "~1.9.0",
+    "ng4-file-upload": "^5.1.7",
     "node-couchdb": "^1.2.0",
     "nodemon": "^1.17.1",
-    "serve-favicon": "~2.4.5"
+    "request-promise": "^4.2.2",
+    "serve-favicon": "~2.4.5",
+    "socket.io": "^2.1.0"
   }
 }

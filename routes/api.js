@@ -3,6 +3,39 @@ var router = express.Router();
 var categoryController=require('../controllers/catergoryController')
 var usersController=require('../controllers/usersController')
 var reviewController=require('../controllers/reviewController')
+var ChatController=require('../controllers/ChatController')
+var jwt = require('jsonwebtoken');
+var config=require('../config')
+function checkToken(req, res, next) {
+  var token = req.body.token || req.query.token || req.headers['x-access-token'];
+  console.log(token);
+  if (token) {
+
+
+    jwt.verify(token, config.SECRET, function (err, decoded) {
+      console.log("req.user : ",decoded, err);
+
+          if (err) {
+
+
+              res.status(403).json({
+                  success: false,
+                  message: "failed to authenticate"
+              });
+          } else {
+              req.user = decoded;
+              console.log("req.user : ", req.user);
+              return next();
+          }
+      });
+  } else {
+      res.status(403).json({
+          success: false,
+          message: "token required"
+      });
+  }
+}
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'welcome to localshop' });
@@ -89,6 +122,17 @@ router.get('/get-review',function(req,res){
     res.json(data)
   })
 })
+
+router.get('/chatHistory',checkToken, function (req, res) {
+  ChatController.chatHistory(req.query, req.user, function (data) {
+      res.json(data);
+  });
+});
+router.post('/newtextChat',checkToken, function (req, res) {
+  ChatController.newtextChat(req.body, req.user, function (data) {
+      res.json(data);
+  })
+});
 
 
 

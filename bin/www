@@ -9,6 +9,8 @@ var debug = require('debug')('souvik:server');
 var http = require('http');
 const CONFIG=require('../config')
 const mongoose = require('mongoose');
+var rp = require('request-promise');
+var chatServer = CONFIG.SITE_BASE_URL;
 
 /**
  * Get port from environment and store in Express.
@@ -22,6 +24,7 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = require('socket.io')(server);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -91,6 +94,530 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
+//
+// ────────────────────────────────────────────────────────────────────────── I ──────────
+//   :::::: W E B S O C K E T   C O N N E C T : :  :   :    :     :        :          :
+// ────────────────────────────────────────────────────────────────────────────────────
+//
+
+function disconnectuser(userId) {
+  var options = {
+      method: 'PATCH',
+      uri: chatServer + 'api/disconnectUser',
+      form: {
+          chatUserId: userId,
+          type: "disconnect"
+      },
+      headers: {
+          'content-type': 'application/x-www-form-urlencoded'
+      },
+      json: true,
+      rejectUnauthorized: false,
+      requestCert: true
+  };
+  rp(options)
+  .then(function(repos) {
+      //console.log('disconnect User >>>>>>>>>>>>>>>>>>>>', repos);
+  })
+  .catch(function(err) {
+      
+      //console.log('err', err);
+  });
+}
+
+function saveUserTextChat(data) {
+  
+  console.log("-------------------------------------------------");
+  console.log(data);
+  console.log("-------------------------------------------------");
+  
+  var options = {
+      method: 'POST',
+      uri: chatServer + 'api/newtextChat',
+      form: {
+          
+          type: data.type,
+          remoteUserId: data.remoteuserid,
+          roomId: data.roomId,
+          chatText: data.chat,
+          chatFile: data.attachment,
+          chatFileName: data.attachmentName,
+          chatFileSize: data.size,
+          chatDate: data.time,
+          userId: data.userid,
+          jsonWebToken: data.jsonWebToken,
+    sender_seen:data.sender_seen,
+          receiver_seen:data.receiver_seen,
+          randomid:data.randomid
+          
+      },
+      headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'x-access-token': data.jsonWebToken
+      },
+      json: true,
+      rejectUnauthorized: false,
+      requestCert: true
+  };
+  rp(options)
+  .then(function(repos) {
+      //console.log('repos', repos);
+  })
+  .catch(function(err) {
+      //console.log('err', err);
+  });
+  
+}
+
+function saveUserGroupChat(data) {
+  
+  //console.log("-------------------------------------------------");
+  //console.log(data);
+  //console.log("-------------------------------------------------");
+  
+  var options = {
+      method: 'POST',
+      uri: chatServer + 'api/newGroupChat',
+      form: {
+          
+          type: "text",
+          groupId: data.groupId,
+          chatText: data.chat,
+          chatFile: data.attachment,
+          chatDate: data.time,
+          jsonWebToken: data.jsonWebToken
+          
+      },
+      headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          'x-access-token': data.jsonWebToken
+      },
+      json: true,
+      rejectUnauthorized: false,
+      requestCert: true
+  };
+  rp(options)
+  .then(function(repos) {
+      //console.log('repos', repos);
+  })
+  .catch(function(err) {
+      //console.log('err', err);
+  });
+  
+}
+
+var chatuserids = {};
+var rooms = [];
+var roomusers = [];
+
+var socketuser = [];
+var currentBroadcastingRoom, id;
+var broadcastrooms = {};
+var userIds = {};
+
+io.on('connection', function(socket) {
+  
+  //console.log("----------client.adapter.rooms join----------");
+  //console.log(socket.adapter.rooms);
+  //console.log(params);
+  
+  var params = socket.handshake.query;
+  
+  var sessionid = params.sessionid;
+  socket.globalid = params.userid;
+  
+  /*
+  var chatToken=params.chatToken;
+  
+  var chatToken=params.chatToken;
+  if(chatToken){
+      jwt.verify(chatToken, secretKey, function(err, decoded){
+          if(err){
+              socket.disconnect();
+              //res.status(403).json({success: false, message: "failed to authenticate"});
+          }else{
+              //console.log(">>>>>>>>>>>>>>>>>>>",decoded,"<<<<<<<<<<<<<<<<<<<<<<<<") 
+          }
+      });
+  }else{
+      socket.disconnect();  
+  }
+  
+  */
+  
+  if (socketuser.indexOf(params.userid) == -1) {
+      socketuser.push(params.userid);
+  }
+  
+  socket.emit('userapearonline', { remoteuserid: params.userid });
+  socket.broadcast.emit('newuserconnect', { remoteuserid: params.userid });
+  
+  //console.log(socketuser);
+  
+  /*---------------- remote user status --------------------------------*/
+  socket.on('userChatSessionIsExit', function(data) {
+      
+      if (socketuser.indexOf(data.id) != -1) {
+          //console.log("newuserconnect");
+          socket.emit('newuserconnect', { remoteuserid: data.id, status: "Online", socketuser: socketuser });
+      } else {
+          //console.log("userdisconnect");
+          socket.emit('userdisconnect', { remoteuserid: data.id, status: "Offline", socketuser: socketuser });
+      }
+  });
+  
+  /* ------------------- Chat Request -------------------------*/
+  
+  socket.on('adduser', function(data) {
+      socket.broadcast.emit('peerRequest', { remoteuserid: data.userid });
+  });
+  
+  socket.on('pingToOnlineUsers', function(data) {
+      socket.broadcast.emit('responseToOnlineUsers', { remoteuserid: data.userid });
+  });
+  
+  socket.on('ConnectExistingRomm', function(data) {
+      
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid || item.remoteuserid == data.userid))
+      })[0];
+      
+      //console.log('alreadycreated = >', alreadycreated);
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = alreadycreated.roomid;
+              chatuserids[data.userid] = data.userid;
+              socket.join(alreadycreated.roomid);
+          }
+      }
+      
+  });
+  
+  /*----------------------- If online Accept chat request ---------------------*/
+  socket.on('peerConnectRequest', function(data) {
+      
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      //console.log('alreadycreated = >', alreadycreated);
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = alreadycreated.roomid;
+              chatuserids[data.userid] = data.userid;
+              socket.join(alreadycreated.roomid);
+              socket.broadcast.emit('peerRequest', { remoteuserid: data.userid });
+          }
+      } else {
+          
+          /* Create new room */
+          var new_room = data.userid + "" + data.remoteuserid + "" + new Date().getTime();
+          rooms.push(new_room);
+          var room = new_room;
+          if (rooms.indexOf(room) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = new_room;
+              chatuserids[data.userid] = data.userid;
+              socket.join(new_room);
+              var data = { inituser: data.userid, remoteuserid: data.remoteuserid, roomid: new_room }
+              roomusers.push(data);
+              socket.broadcast.emit('peerRequest', { remoteuserid: data.remoteuserid });
+              
+          }
+      }
+      
+  });
+  
+  /*----------------------- If online Accept chat request ---------------------*/
+  socket.on('peerConnect', function(data) {
+      
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      //console.log('alreadycreated = >', alreadycreated);
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = alreadycreated.roomid;
+              chatuserids[data.userid] = data.userid;
+              socket.join(alreadycreated.roomid);
+          }
+      } else {
+          
+          /* Create new room */
+          var new_room = data.userid + "" + data.remoteuserid + "" + new Date().getTime();
+          rooms.push(new_room);
+          var room = new_room;
+          if (rooms.indexOf(room) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = new_room;
+              chatuserids[data.userid] = data.userid;
+              socket.join(new_room);
+              var data = { inituser: data.userid, remoteuserid: data.remoteuserid, roomid: new_room }
+              roomusers.push(data);
+              
+          }
+      }
+      
+  });
+  
+  /*------------------------- User Send Chat --------------------------------*/
+  
+  socket.on('sendchat', function(data) {
+      
+      console.log("sendchat", data);
+      
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      if (data.type == "text")
+      saveUserTextChat(data);
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              data.roomId = alreadycreated.roomid;
+              socket.broadcast.to(alreadycreated.roomid).emit('chatReciveRemoteuser', data);
+              var message = { type: "new chat" }
+              socket.broadcast.to(alreadycreated.roomid).emit('pushNewMessage', data, message);
+              socket.broadcast.to(alreadycreated.roomid).emit('likerequestsent', data);
+              socket.broadcast.to(alreadycreated.roomid).emit('newunseenmessage_recived', data);
+          }
+      } else {
+          /* Create new room */
+          var new_room = data.userid + "" + data.remoteuserid + "" + new Date().getTime();
+          rooms.push(new_room);
+          var room = new_room;
+          if (rooms.indexOf(room) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = new_room;
+              chatuserids[data.userid] = data.userid;
+              socket.join(new_room);
+              var data = { inituser: data.userid, remoteuserid: data.remoteuserid, roomid: new_room }
+              roomusers.push(data);
+              socket.emit('tryConnectAgain', data);
+              //  io.sockets.in(alreadycreated.roomid).emit('messageSendFailed',data,message);
+              
+          }
+      }
+      
+  });
+  
+
+  
+  /* --------------------- User connect Group Chat ----------------------------*/
+  socket.on('groupConnect', function(data) {
+      //console.log("/* --------------------- User connect Group Chat ----------------------------*/");
+      //console.log("groupConnect", data);
+      socket.chatuserid = data.userId;
+      socket.room = data.groupId;
+      socket.join(data.groupId);
+  });
+  
+  /*------------------------- User Send Chat --------------------------------*/
+  
+  socket.on('groupChat', function(data) {
+      
+      //console.log(data);
+      
+      socket.broadcast.to(data.groupId).emit('groupChatBroadCast', data);
+      socket.broadcast.to(data.groupId).emit('pushNewMessage', data, message);
+      var message = { type: "new group chat" };
+      if (data.type == "text")
+      saveUserGroupChat(data);
+      
+  });
+  
+  /*-------------------- Broadcasting ---------------------*/
+  
+  socket.on('offerVideoChat', function(data) {
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              io.sockets.in(alreadycreated.roomid).emit('userAskTojoinVideoChat', alreadycreated, data);
+              
+          }
+      }
+  });
+  
+  socket.on('rejectCall', function(data) {
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      if (typeof(alreadycreated) != 'undefined') {
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.broadcast.to(alreadycreated.roomid).emit('onRejectCall', data);
+          }
+      }
+  });
+  
+  socket.on('callConnectResponce', function(data) {
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.broadcast.to(alreadycreated.roomid).emit('userAcseptAudioChat', alreadycreated, data);
+          }
+      }
+  });
+  
+  socket.on('callconnect', function(data) {
+      
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.broadcast.to(alreadycreated.roomid).emit('userAskTojoinAudioChat', alreadycreated, data);
+          }
+      } else {
+          /* Create new room */
+          var new_room = data.userid + "" + data.remoteuserid + "" + new Date().getTime();
+          rooms.push(new_room);
+          var room = new_room;
+          if (rooms.indexOf(room) != -1) {
+              socket.chatuserid = data.userid;
+              socket.room = new_room;
+              chatuserids[data.userid] = data.userid;
+              socket.join(new_room);
+              var data = { inituser: data.userid, remoteuserid: data.remoteuserid, roomid: new_room }
+              roomusers.push(data);
+              socket.emit('tryConnectAgain', data);
+          }
+      }
+  });
+  
+  socket.on('audioChatBroadcating', function(data) {
+      
+      //console.log(data);
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              io.sockets.in(alreadycreated.roomid).emit('audioChatBroadcatingemit', alreadycreated, data);
+              
+          }
+      }
+  });
+  
+  socket.on('disconnectPeer', function(data) {
+      
+      //console.log("disconnectPeer");
+      var alreadycreated = roomusers.filter(function(item) {
+          return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
+      })[0];
+      
+      if (typeof(alreadycreated) != 'undefined') {
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.broadcast.to(alreadycreated.roomid).emit('onDisconnectPeer', data);
+          }
+      }
+  });
+  
+  // when the user disconnects.. perform this
+  socket.on('disconnect', function() {
+      socket.broadcast.emit('userdisconnect', { remoteuserid: params.userid });
+      var index = socketuser.indexOf(params.userid);
+      if (index > -1) {
+          socketuser.splice(index, 1);
+      }
+      socket.leave(socket.room);
+      socket.disconnect();
+      //disconnectuser(params.userid); 
+      
+  });
+  //subhash
+  
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function(data) {
+      //console.log(data);
+  });
+
+//////////////////////
+//                  //
+//     blocked user //
+//////////////////////
+socket.on('blockUser', function (data) { 
+  //console.log('blockuser',data)
+  var alreadycreated = roomusers.filter(function ( item ) {
+      return((item.inituser==data.userid && item.remoteuserid==data.remoteuserid) || (item.inituser==data.remoteuserid && item.remoteuserid==data.userid))
+  })[0];
+  if(typeof(alreadycreated)!='undefined'){ 
+      if (rooms.indexOf(alreadycreated.roomid) != -1) {
+          socket.broadcast.to(alreadycreated.roomid).emit('blockUserAlert',{blocked_by:data.userid,blocked_to:data.remoteuserid}); 
+      }
+  }
+});
+
+//////////////////
+// user typing  //
+//              //
+//////////////////
+  socket.on('typeKeyLeave', function (data) { 
+      //console.log('typeKeyLeave',data)
+      var alreadycreated = roomusers.filter(function ( item ) {
+          return((item.inituser==data.userid && item.remoteuserid==data.remoteuserid) || (item.inituser==data.remoteuserid && item.remoteuserid==data.userid))
+      })[0];
+      if(typeof(alreadycreated)!='undefined'){ 
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.broadcast.to(alreadycreated.roomid).emit('onTypeKeyLeave',data); 
+          }
+      }
+  });
+  
+  socket.on('typeonkeyPress', function (data) { 
+      //console.log('typeonkeyPress',data)
+      
+      var alreadycreated = roomusers.filter(function ( item ) {
+          return((item.inituser==data.userid && item.remoteuserid==data.remoteuserid) || (item.inituser==data.remoteuserid && item.remoteuserid==data.userid))
+      })[0];
+      if(typeof(alreadycreated)!='undefined'){ 
+          if (rooms.indexOf(alreadycreated.roomid) != -1) {
+              socket.broadcast.to(alreadycreated.roomid).emit('onTypeonkeyPress',data); 
+          }
+      }
+  });
+  
+/**
+* 
+*/
+
+socket.on('newusersignin', function (data) { 
+   socket.broadcast.emit('NewUserSignIn',data);
+  
+ //console.log('newusersignin',data) 
+});
+
+});
+
+
+
+
+
+
 const URI='mongodb://'+CONFIG.USERNAME+':'+CONFIG.PASSWORD+'@'+CONFIG.HOST+':'+CONFIG.PORT+'/'+CONFIG.DATABASE
-var connect=mongoose.connect(URI);
-console.log(connect,URI)
+var connect=mongoose.connect(URI,function(err,response){
+if(response){
+    console.log('connected')
+}
+
+});
