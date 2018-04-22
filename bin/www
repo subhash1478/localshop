@@ -376,6 +376,7 @@ io.on('connection', function(socket) {
       
       console.log("sendchat", data);
       
+     // return false
       var alreadycreated = roomusers.filter(function(item) {
           return ((item.inituser == data.userid && item.remoteuserid == data.remoteuserid) || (item.inituser == data.remoteuserid && item.remoteuserid == data.userid))
       })[0];
@@ -386,8 +387,10 @@ io.on('connection', function(socket) {
       if (typeof(alreadycreated) != 'undefined') {
           if (rooms.indexOf(alreadycreated.roomid) != -1) {
               data.roomId = alreadycreated.roomid;
-              socket.broadcast.to(alreadycreated.roomid).emit('chatReciveRemoteuser', data);
-              var message = { type: "new chat" }
+              console.on
+          socket.broadcast.to(alreadycreated.roomid).emit('chatReciveRemoteuser', data);
+        
+           var message = { type: "new chat" }
               socket.broadcast.to(alreadycreated.roomid).emit('pushNewMessage', data, message);
               socket.broadcast.to(alreadycreated.roomid).emit('likerequestsent', data);
               socket.broadcast.to(alreadycreated.roomid).emit('newunseenmessage_recived', data);

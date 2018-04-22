@@ -315,6 +315,35 @@ var usersController={
                 }
             })
         }
+    },
+
+
+    //
+    // ──────────────────────────────────────────────────────────────────────────── IV ──────────
+    //   :::::: G E T   C H A T   U S E R   L I S T : :  :   :    :     :        :          :
+    // ──────────────────────────────────────────────────────────────────────────────────────
+    //
+
+    chatUserList:function(request_data,userData,callback){
+        async.waterfall([
+            userList
+        ],function(error,success){
+            if(error){
+                callback({success:false,message:err})
+            }else{
+                callback({success:true,data:success})
+            }
+        })
+        function userList(callback){
+            userModel.find({_id:{$ne:userData.id}}).exec(function(err,res){
+                //console.log(res)
+                if(err){
+                    callback(err)
+                }else{
+                    callback(null,res)
+                }
+            })
+        }
     }
 }
 module.exports=usersController

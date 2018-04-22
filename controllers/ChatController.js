@@ -161,7 +161,8 @@ chatHistory: function (ChatData, userData, callback) {
             remoteUserId: userData.id
         }
     ],
-    deleted_by: { $ne: userData.id }
+    deleted_by: { $ne: userData.id },
+
 };
 console.log("query : ", query);
 if (ChatData.page) {

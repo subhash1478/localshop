@@ -128,12 +128,23 @@ router.get('/chatHistory',checkToken, function (req, res) {
       res.json(data);
   });
 });
+
 router.post('/newtextChat',checkToken, function (req, res) {
-  ChatController.newtextChat(req.body, req.user, function (data) {
+//console.log(req.body)
+   ChatController.newtextChat(req.body, req.user, function (data) {
+      res.json(data);
+ })
+});
+//
+// ─── CHAT USER LIST ─────────────────────────────────────────────────────────────
+//
+
+  
+ router.get('/chat-user-list',checkToken, function (req, res) {
+  usersController.chatUserList(req.body, req.user, function (data) {
       res.json(data);
   })
 });
-
 
 
 module.exports = router;
