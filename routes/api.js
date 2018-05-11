@@ -147,4 +147,11 @@ router.post('/newtextChat',checkToken, function (req, res) {
 });
 
 
+router.get('/search',checkToken, function (req, res) {
+  usersController.chatUserList(req.body, req.user, function (data) {
+      res.json(data);
+  })
+});
+
+
 module.exports = router;
