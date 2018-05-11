@@ -617,7 +617,9 @@ socket.on('newusersignin', function (data) {
 
 
 
-const URI='mongodb://'+CONFIG.USERNAME+':'+CONFIG.PASSWORD+'@'+CONFIG.HOST+':'+CONFIG.PORT+'/'+CONFIG.DATABASE
+//const URI='mongodb://'+CONFIG.USERNAME+':'+CONFIG.PASSWORD+'@'+CONFIG.HOST+':'+CONFIG.PORT+'/'+CONFIG.DATABASE
+const URI ='mongodb://127.0.0.1:27017/localshop'
+console.log(URI)
 var connect=mongoose.connect(URI,function(err,response){
 if(response){
     console.log('connected')

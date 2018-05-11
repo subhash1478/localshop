@@ -1,18 +1,18 @@
-
+	
 //
 // ──────────────────────────────────────────────────────────────────────────────────────────── I ──────────
 //   :::::: M O N G O O S E   C O N N E C T   F R O M   M L A B : :  :   :    :     :        :          :
 // ──────────────────────────────────────────────────────────────────────────────────────────────────────
 //
 module.exports=  {
-    HOST:'ds211029.mlab.com',
-    USERNAME:'subhash',
-    PASSWORD:'sbookjusth',
-    PORT:'11029',
+    HOST:'139.59.12.86',
+    USERNAME:'root',
+    PASSWORD:'A3CEKC74L7KCRN7I',
+    PORT:'27017',
     DATABASE:'localshop',
     SECRET:'QWERTYUIOPASDFGHJKLZXCVBNM!@#$%^&*()1234567890',
-   // SITE_BASE_URL:'http://localhost:3001/',
-    SITE_BASE_URL:'https://classfied.herokuapp.com/',
+    SITE_BASE_URL:'http://139.59.12.86:3001/',
+   // SITE_BASE_URL:'https://classfied.herokuapp.com/',
    
    status: {
         OK: 200,

@@ -5,9 +5,6 @@ var adminController=require('../controllers/adminController')
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'welcome to localshop' });
 });
-
-
-
 //
 // ──────────────────────────────────────────────────────────────── I ──────────
 //   :::::: A D M I N   R O U T E R : :  :   :    :     :        :          :
@@ -25,8 +22,6 @@ router.post('/register',function(req,res){
     res.json(data)
   })
 });
-
-
 // forget password
 router.post('/forget-password',function(req,res){
   adminController.forgetPassword(req.body,function(data){

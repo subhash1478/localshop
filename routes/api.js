@@ -4,6 +4,10 @@ var categoryController=require('../controllers/catergoryController')
 var usersController=require('../controllers/usersController')
 var reviewController=require('../controllers/reviewController')
 var ChatController=require('../controllers/ChatController')
+var promoterController=require('../controllers/promoterController')
+var postController=require('../controllers/postController')
+
+
 var jwt = require('jsonwebtoken');
 var config=require('../config')
 function checkToken(req, res, next) {
@@ -84,20 +88,25 @@ router.post('/forget-password',function(req,res){
 //
 //  add
 router.post('/add-category',function(req,res){
-  categoryController.addCategory(req.body,function(data){
+console.log(req.body)
+
+
+  categoryController.addCategory(req.body,req.files,function(data){
     res.json(data)
   })
 });
 
 //  add
 router.post('/update-category',function(req,res){
-  categoryController.updateCategory(req.body,function(data){
+  categoryController.updateCategory(req.body,req.files,function(data){
     res.json(data)
   })
 });
 
 //  get
 router.get('/get-category',function(req,res){
+
+
   categoryController.getCategory(req.query,function(data){
     res.json(data)
   })
@@ -147,11 +156,76 @@ router.post('/newtextChat',checkToken, function (req, res) {
 });
 
 
-router.get('/search',checkToken, function (req, res) {
-  usersController.chatUserList(req.body, req.user, function (data) {
+
+router.post('/add-promoter', function (req, res) {
+  promoterController.addPromoter(req.body,req.files, function (data) {
       res.json(data);
   })
 });
+
+
+//  get
+router.get('/get-promoter',function(req,res){
+
+
+  promoterController.getPromoter(req.query,function(data){
+    res.json(data)
+  })
+});
+
+//  add
+router.post('/update-promoter',function(req,res){
+  promoterController.updatepromoter(req.body,req.files,function(data){
+    res.json(data)
+  })
+});
+
+
+//post api
+router.post('/add-post',function(req,res){
+  postController.addPost(req.body,function(data){
+    res.json(data)
+  })
+});
+router.post('/update-post',function(req,res){
+  postController.updatePost(req.body,req.files,function(data){
+    res.json(data)
+  })
+});
+router.get('/get-post',function(req,res){
+  postController.getPost(req.body,function(data){
+    res.json(data)
+  })
+});
+
+
+router.post('/update-postimage',function(req,res){
+  postController.updatePostimage(req.body,req.files,function(data){
+    res.json(data)
+  })
+});
+
+
+router.post('/update-tag',function(req,res){
+  categoryController.updateTag(req.body,function(data){
+    res.json(data)
+  })
+});
+
+router.get('/get-tag',function(req,res){
+  categoryController.getTag(req.query,function(data){
+    res.json(data)
+  })
+});
+
+router.post('/update-post-tag',function(req,res){
+  postController.updatePostTag(req.body,function(data){
+    res.json(data)
+  })
+});
+
+
+ 
 
 
 module.exports = router;
