@@ -144,7 +144,7 @@ var categoryController={
             }
         })
         function findTag(callback){
-            tagModel.find({category:request_data.id}).exec(function(err,res){
+            tagModel.find({}).exec(function(err,res){
 
                 if(err){
                     callback(err)
