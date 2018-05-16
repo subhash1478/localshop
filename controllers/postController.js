@@ -40,7 +40,7 @@ var postController = {
   getPost: function(request_data, callback) {
     postModel.find({})
       .populate({
-        path: 'category'
+        path: 'category userid'
       })
       .exec(function(err, response) {
         if (err) {
@@ -64,6 +64,7 @@ var postController = {
                 res['title'] = item.title,
                   res['description'] = item.description,
                   res['category'] = item.category,
+                  res['userid'] = item.userid,
                   res['tags'] = item.tags,
                   res['viewed'] = item.viewed
                 res['_id'] = item._id
@@ -178,6 +179,16 @@ var postController = {
         }
       })
     }
+  },
+
+
+  deletePostTag:function(request_data,callback){
+    console.log('request_data',request_data)
+    postModel.update( { _id: request_data.id}, { $pull: { tags: request_data.tagname } } ).exec(function(err,res){
+
+      console.log(err,res)
+    })
+
   },
 
 

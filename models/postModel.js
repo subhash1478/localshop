@@ -1,6 +1,6 @@
 /*
- * Contact Model
- */
+* Contact Model
+*/
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -10,7 +10,7 @@ var PostSchema = new Schema({
     required: [true, 'title  not found']
   },
   category: {
-    type: String,
+    type: Schema.Types.ObjectId,
     ref: 'Category',
     required: [true, 'Category  not found']
   },
@@ -31,8 +31,8 @@ var PostSchema = new Schema({
     default: null,
     ref: 'Users'
   }
-
-
+  
+  
 }, {
   timestamps: true
 });

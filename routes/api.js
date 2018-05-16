@@ -230,7 +230,11 @@ router.post('/update-post-tag', function(req, res) {
     res.json(data)
   })
 });
-
+router.post('/delete-post-tag', function(req, res) {
+  postController.deletePostTag(req.body, function(data) {
+    res.json(data)
+  })
+});
 
 //
 // ────────────────────────────────────────────────────────────────────────────────────────────────────────────────── I ──────────
