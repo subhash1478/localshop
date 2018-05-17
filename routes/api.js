@@ -251,6 +251,12 @@ router.post('/search', function(req, res) {
 });
 
 
+router.get('/userdetails',checkToken, function(req, res) {
+  usersController.userdetails(req.query,req.user, function(data) {
+    res.json(data)
+  })
+});
+
 
 
 module.exports = router;

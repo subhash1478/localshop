@@ -90,6 +90,24 @@ var usersController = {
       })
 
     }
+
+  },
+
+  userdetails:function(request_data,userData,callback){
+    console.log('userData',userData)
+    userModel.findOne({_id:userData.id}).exec(function(err,res){
+      if (err) {
+        callback({
+          success: false,
+          message: err
+        })
+      } else {
+        callback({
+          success: true,
+          data: res
+        })
+      }
+    })
   },
   //
   // ────────────────────────────────────────────────────────────────── II ──────────
