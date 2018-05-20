@@ -1,6 +1,6 @@
 /*
-* Contact Model
-*/
+ * Contact Model
+ */
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -30,9 +30,31 @@ var PostSchema = new Schema({
     type: Schema.Types.ObjectId,
     default: null,
     ref: 'Users'
+  },
+  phone: {
+    type: String,
+    default: null
+  },
+  address: {
+    type: String,
+    default: null
+  },
+  timing: {
+    type: [String],
+    default: null
+  },
+  rating: {
+    type: String,
+    default: null
+  },
+  location: {
+    type: Schema.Types.Mixed,
+    default: null
+  },
+  website: {
+    type: String,
+    default: null
   }
-  
-  
 }, {
   timestamps: true
 });

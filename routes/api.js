@@ -259,4 +259,11 @@ router.get('/userdetails',checkToken, function(req, res) {
 
 
 
+router.post('/add-post-googleapi', function(req, res) {
+  postController.addPostGoogleapi(req.body, function(data) {
+    res.json(data)
+  })
+});
+
+
 module.exports = router;
