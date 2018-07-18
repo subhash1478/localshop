@@ -78,6 +78,24 @@ var categoryController={
             }
         });
     },
+    updateCategoryData:function(request_data,callback){
+        var categoryData={
+            title:request_data.title,
+         }
+        var cond={_id:request_data._id}
+        , options = { multi: true };
+        categoryModel.update(cond,categoryData,options,function(err,response){
+            if(err){
+                callback({success:false,message:err})
+            }else{
+                callback({success:true,message:'succesfully updated',data:response})
+            }
+        });
+    },
+
+
+
+
     updateTag:function(request_data,callback){
         async.waterfall([
             checkTag,

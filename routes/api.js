@@ -115,6 +115,16 @@ router.get('/get-category', function(req, res) {
   })
 });
 
+
+router.post('/update-category-data', function(req, res) {
+
+
+  categoryController.updateCategoryData(req.body, function(data) {
+    res.json(data)
+  })
+});
+
+
 router.get('/get-vendor', function(req, res) {
   usersController.getVendorList(req.query, function(data) {
     res.json(data)
